@@ -67,5 +67,5 @@ class Recipe(models.Model):
     )
 
     title = models.CharField(max_length=255)
-    time_minutes = models.IntegerField()
+    # time_minutes = models.IntegerField()
     tags = models.ManyToManyField('Tag')
