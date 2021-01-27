@@ -59,20 +59,7 @@ class Ingredient(models.Model):
     def __str__(self):
         return self.name
 
-class IngredientLine(models.Model):
-    """Ingredient line to give details about ingredient for a recipe"""
-    quantity = models.CharField(max_length=255)
-    ingredient = models.ForeignKey(
-        Ingredient,
-        on_delete=models.CASCADE,
-    )
-    # user = models.ForeignKey(
-    #     settings.AUTH_USER_MODEL,
-    #     on_delete=models.CASCADE,
-    # )
 
-    def __str__(self):
-        return self.quantity + " " + self.ingredient.name
 
 class Recipe(models.Model):
     """Recipe object"""
@@ -84,4 +71,21 @@ class Recipe(models.Model):
     title = models.CharField(max_length=255)
     tags = models.ManyToManyField('Tag')
     ingredients = models.ManyToManyField('Ingredient')
-    ingredientLines = models.ManyToManyField('IngredientLine')
+    # ingredientLines = models.ManyToManyField('IngredientLine')
+
+class IngredientLine(models.Model):
+    """Ingredient line to give details about ingredient for a recipe"""
+    quantity = models.CharField(max_length=255)
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+    )
+    recipe = models.ForeignKey(Recipe, related_name='ingredientLines', on_delete=models.CASCADE)
+
+    # user = models.ForeignKey(
+    #     settings.AUTH_USER_MODEL,
+    #     on_delete=models.CASCADE,
+    # )
+
+    def __str__(self):
+        return self.quantity + " " + self.ingredient.name

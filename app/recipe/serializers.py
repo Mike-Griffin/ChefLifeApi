@@ -28,25 +28,32 @@ class IngredientLineSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IngredientLine
-        fields = ('id', 'quantity','ingredient')
-        read_only_fields = ('id',)
+        fields = ('quantity','ingredient')
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Serializer for recipe objects"""
-    tags = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Tag.objects.all()
-    )
+    # tags = serializers.PrimaryKeyRelatedField(
+    #     many=True,
+    #     queryset=Tag.objects.all()
+    # )
 
-    ingredientLines = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=IngredientLine.objects.all()
-    )
+    # tags = TagSerializer(many=True)
+
+    ingredientLines = IngredientLineSerializer(many=True)
 
     class Meta:
         model = Recipe
         fields = ('id', 'title', 'tags', 'ingredientLines')
         read_only_fields = ('id',)
+    
+    def create(self, validated_data):
+        ingredientLines_data = validated_data.pop('ingredientLines')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+        recipe.tags.set(tags)
+        for ingredientLine_data in ingredientLines_data:
+            IngredientLine.objects.create(recipe=recipe, **ingredientLine_data)
+        return recipe
 
 class RecipeDetailSerializer(RecipeSerializer):
     """Serialize a recipe detail"""
