@@ -59,6 +59,17 @@ class Ingredient(models.Model):
     def __str__(self):
         return self.name
 
+class Measurement(models.Model):
+    """Measurement used as part of Ingredient line"""
+    name = models.CharField(max_length=255)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    ) 
+
+    def __str__(self):
+        return self.name
+
 
 
 class Recipe(models.Model):
@@ -71,21 +82,21 @@ class Recipe(models.Model):
     title = models.CharField(max_length=255)
     tags = models.ManyToManyField('Tag')
     ingredients = models.ManyToManyField('Ingredient')
-    # ingredientLines = models.ManyToManyField('IngredientLine')
 
 class IngredientLine(models.Model):
     """Ingredient line to give details about ingredient for a recipe"""
-    quantity = models.CharField(max_length=255)
+    quantity = models.DecimalField(max_digits=5, decimal_places=2)
+    order = models.IntegerField()
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
     )
+    measurement = models.ForeignKey(
+        Measurement,
+        on_delete=models.CASCADE,
+    )
     recipe = models.ForeignKey(Recipe, related_name='ingredientLines', on_delete=models.CASCADE)
 
-    # user = models.ForeignKey(
-    #     settings.AUTH_USER_MODEL,
-    #     on_delete=models.CASCADE,
-    # )
 
     def __str__(self):
-        return self.quantity + " " + self.ingredient.name
+        return self.quantity + " " + self.measurement + " " + self.ingredient.name
