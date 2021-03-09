@@ -81,7 +81,16 @@ class Recipe(models.Model):
 
     title = models.CharField(max_length=255)
     tags = models.ManyToManyField('Tag')
-    ingredients = models.ManyToManyField('Ingredient')
+
+class GroceryList(models.Model):
+    """Grocery list object"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+
+    recipes = models.ManyToManyField('Recipe', blank=True)
+
 
 class IngredientLine(models.Model):
     """Ingredient line to give details about ingredient for a recipe"""
@@ -95,7 +104,8 @@ class IngredientLine(models.Model):
         Measurement,
         on_delete=models.CASCADE,
     )
-    recipe = models.ForeignKey(Recipe, related_name='ingredientLines', on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, related_name='ingredientLines', on_delete=models.CASCADE, blank=True, null=True)
+    groceryList = models.ForeignKey(GroceryList, related_name='ingredientLines', on_delete=models.CASCADE, blank=True, null=True)
 
 
     def __str__(self):

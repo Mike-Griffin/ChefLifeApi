@@ -9,6 +9,7 @@ router.register('ingredients', views.IngredientViewSet)
 router.register('measurements', views.MeasurementViewSet)
 router.register('ingredientLines', views.IngredientLineViewSet)
 router.register('recipes', views.RecipeViewSet)
+router.register('groceryLists', views.GroceryListViewSet)
 
 app_name = 'recipe'
 

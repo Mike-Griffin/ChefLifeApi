@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.models import Tag, Ingredient, IngredientLine, Measurement, Recipe
+from core.models import Tag, Ingredient, IngredientLine, Measurement, Recipe, GroceryList
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -69,4 +69,28 @@ class RecipeSerializer(serializers.ModelSerializer):
 class RecipeDetailSerializer(RecipeSerializer):
     """Serialize a recipe detail"""
     tags = TagSerializer(many=True, read_only=True)
+    ingredientLines = IngredientLineSerializer(many=True, read_only=True)
+
+class GroceryListSerializer(serializers.ModelSerializer):
+    """Serializer for grocery list objects"""
+
+    ingredientLines = IngredientLineSerializer(many=True)
+
+    class Meta:
+        model = GroceryList
+        fields = ('ingredientLines', 'recipes')
+        read_only_fields = ('id',)
+    
+    def create(self, validated_data):
+        ingredientLines_data = validated_data.pop('ingredientLines')
+        recipes = validated_data.pop('recipes')
+        groceryList = GroceryList.objects.create(**validated_data)
+        groceryList.recipes.set(recipes)
+        for ingredientLine_data in ingredientLines_data:
+            IngredientLine.objects.create(groceryList=groceryList, **ingredientLine_data)
+        return groceryList
+
+class GroceryListDetailSerializer(RecipeSerializer):
+    """Serialize a grocery list detail"""
+    recipes = RecipeSerializer(many=True, read_only=True)
     ingredientLines = IngredientLineSerializer(many=True, read_only=True)

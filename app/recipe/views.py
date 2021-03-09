@@ -2,7 +2,7 @@ from rest_framework import viewsets, mixins
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from core.models import Tag, Ingredient, IngredientLine, Measurement, Recipe
+from core.models import Tag, Ingredient, IngredientLine, Measurement, Recipe, GroceryList
 from recipe import serializers
 
 
@@ -85,6 +85,34 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Return the appropriate serializer class"""
         if self.action == 'retrieve':
             return serializers.RecipeDetailSerializer
+
+        return self.serializer_class
+
+    def perform_create(self, serializer):
+        """Create a new object"""
+        serializer.save(user=self.request.user)
+
+class GroceryListViewSet(viewsets.ModelViewSet):
+    """Manage grocery lists in the database"""
+    serializer_class = serializers.GroceryListSerializer
+    queryset = GroceryList.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def _params_to_ints(self, qs):
+        """Convert a list of string IDs to a list of integers"""
+        return [int(str_id) for str_id in qs.split(',')]
+
+    def get_queryset(self):
+        """Retrive the recipes for the authenticated user"""
+        queryset = self.queryset
+
+        return queryset.filter(user=self.request.user).order_by('-id')
+
+    def get_serializer_class(self):
+        """Return the appropriate serializer class"""
+        if self.action == 'retrieve':
+            return serializers.GroceryListDetailSerializer
 
         return self.serializer_class
 
